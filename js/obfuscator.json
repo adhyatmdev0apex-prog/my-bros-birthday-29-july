@@ -1,28 +1,22 @@
 {
   "compact": true,
   "controlFlowFlattening": true,
-  "controlFlowFlatteningThreshold": 1,
+  "controlFlowFlatteningThreshold": 0.75,
   "deadCodeInjection": true,
   "deadCodeInjectionThreshold": 0.4,
-  "debugProtection": true,
-  "debugProtectionInterval": 3000,
   "disableConsoleOutput": true,
   "identifierNamesGenerator": "hexadecimal",
   "renameGlobals": false,
+  "rotateStringArray": true,
   "selfDefending": true,
-  "simplify": true,
+  "shuffleStringArray": true,
   "splitStrings": true,
   "splitStringsChunkLength": 8,
   "stringArray": true,
-  "stringArrayCallsTransform": true,
   "stringArrayEncoding": [
     "base64"
   ],
-  "stringArrayRotate": true,
-  "stringArrayShuffle": true,
-  "stringArrayWrappersCount": 2,
-  "stringArrayWrappersChainedCalls": true,
-  "stringArrayThreshold": 1,
+  "stringArrayThreshold": 0.75,
   "transformObjectKeys": true,
   "unicodeEscapeSequence": false
 }
