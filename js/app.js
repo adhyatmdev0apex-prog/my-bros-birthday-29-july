@@ -1,0 +1,125 @@
+/*=========================================================
+    APP.JS  —  Config + Scene Engine only
+    Scene logic lives in scenes.js
+=========================================================*/
+
+const CONFIG = {
+    HER_NAME   : "Her Name",   /* ← change this */
+    ANSWER_ONE : "3rd_person", /* ← answer to question 1 */
+    ANSWER_TWO : "8th_grader"  /* ← answer to question 2 */
+};
+
+const DEBUG = false;
+const AUTH_SESSION_KEY = "birthday-auth-verified";
+
+/*----- Root mount point -----*/
+const app = document.getElementById("app");
+
+/*----- Scene order (remove a name to skip that scene) -----*/
+const SCENES = [
+    "auth",
+    "loading",
+    "intro",
+    "birthday",
+    "mission",
+    "cards",
+    "night",
+    "cake",
+    "ending",
+    "terminal",
+    "memory"
+];
+
+let currentScene = 0;
+
+function isAuthVerified(){
+    return sessionStorage.getItem(AUTH_SESSION_KEY) === "true";
+}
+
+function markAuthVerified(){
+    sessionStorage.setItem(AUTH_SESSION_KEY, "true");
+}
+
+function getInitialSceneIndex(){
+    return isAuthVerified() ? 1 : 0;
+}
+
+function restartExperience(){
+    document.body.classList.remove("memory-zooming");
+    const overlay = document.getElementById("restartOverlay");
+    if(!overlay){
+        const el = document.createElement("div");
+        el.id = "restartOverlay";
+        el.className = "restartOverlay";
+        document.body.appendChild(el);
+        requestAnimationFrame(() => { el.style.opacity = "1"; });
+    } else {
+        overlay.style.opacity = "1";
+        overlay.style.display = "block";
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    setTimeout(() => {
+        clearScene();
+        currentScene = getInitialSceneIndex();
+        renderScene();
+        const el = document.getElementById("restartOverlay");
+        if(el){
+            el.style.opacity = "0";
+            setTimeout(() => { el.style.display = "none"; }, 480);
+        }
+    }, 420);
+}
+
+window.addEventListener("load", () => {
+    hideBootLoader();
+    gotoScene(getInitialSceneIndex());
+});
+
+/*=========================================================
+    BOOT LOADER
+=========================================================*/
+function hideBootLoader(){
+    const el = document.getElementById("boot-loader");
+    if(!el) return;
+    el.style.transition = "opacity 0.6s";
+    el.style.opacity    = "0";
+    setTimeout(() => el.style.display = "none", 700);
+}
+
+/*=========================================================
+    SCENE ENGINE
+=========================================================*/
+function gotoScene(index){
+    if(index < 0 || index >= SCENES.length) return;
+    clearScene();
+    currentScene = index;
+    if(DEBUG) console.log("▶ Scene:", SCENES[index]);
+    renderScene();
+}
+
+function nextScene(){ gotoScene(currentScene + 1); }
+
+function clearScene(){ app.innerHTML = ""; }
+
+function renderScene(){
+    switch(SCENES[currentScene]){
+        case "auth":     showAuthentication(); break;
+        case "loading":  showUniverse();       break;
+        case "intro":    showIntro();          break;
+        case "birthday": showBirthday();       break;
+        case "mission":  showMission();        break;
+        case "cards":    showCards();          break;
+        case "night":    showNight();          break;
+        case "cake":     showCake();           break;
+        case "ending":   showEnding();         break;
+        case "terminal": showTerminal();       break;
+        case "memory":   showMemory();         break;
+    }
+}
+
+/*=========================================================
+    UTILITY
+=========================================================*/
+function wait(ms){ return new Promise(r => setTimeout(r, ms)); }

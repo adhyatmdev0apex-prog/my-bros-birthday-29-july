@@ -1,0 +1,40 @@
+/*====================================================
+    ROOT VARIABLES
+====================================================*/
+
+:root{
+
+    --bg:#040812;
+
+    --bg2:#0b1730;
+
+    --glass:rgba(255,255,255,.08);
+
+    --glassBorder:rgba(255,255,255,.15);
+
+    --white:#ffffff;
+
+    --gold:#FFD166;
+
+    --pink:#ffc9f4;
+
+    --lavender:#CDB4FF;
+
+    --blue:#6FA8FF;
+
+    --text:#f5f7ff;
+
+    --radius:24px;
+
+    --shadow:
+    0 10px 40px rgba(0,0,0,.45);
+
+    --transition:.35s;
+
+    --blur:18px;
+
+    --fontMain:'Poppins',sans-serif;
+
+    --fontTitle:'Playfair Display',serif;
+
+}
