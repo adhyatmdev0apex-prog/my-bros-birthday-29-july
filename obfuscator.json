@@ -14,7 +14,7 @@
   "splitStringsChunkLength": 8,
   "stringArray": true,
   "stringArrayEncoding": [
-    "base64"
+    "base64" 
   ],
   "stringArrayThreshold": 0.75,
   "transformObjectKeys": true,

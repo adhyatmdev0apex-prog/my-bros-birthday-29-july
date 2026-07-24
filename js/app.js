@@ -27,6 +27,7 @@ const SCENES = [
     "cake",
     "ending",
     "terminal",
+    "confidential",
     "memory"
 ];
 
@@ -115,6 +116,7 @@ function renderScene(){
         case "cake":     showCake();           break;
         case "ending":   showEnding();         break;
         case "terminal": showTerminal();       break;
+        case "confidential": showConfidential(); break;
         case "memory":   showMemory();         break;
     }
 }
@@ -123,3 +125,76 @@ function renderScene(){
     UTILITY
 =========================================================*/
 function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+const DOCUMENT_API =
+    "https://custom-personal-document-api.onrender.com/api/document";
+
+async function openSecretDocument(answer1, answer2){
+
+    showLoadingScene([
+        "Decrypting archive...",
+        "Establishing secure channel...",
+        "Verifying archive integrity...",
+        "Preparing document..."
+    ]);
+
+    try{
+
+        const response = await fetch(DOCUMENT_API,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                answer1,
+                answer2
+            }),
+            cache:"no-store"
+        });
+
+        if(!response.ok){
+            throw new Error("Authentication Failed");
+        }
+
+        const blob=await response.blob();
+
+        const url=URL.createObjectURL(blob);
+
+        showPdfViewer(url);
+
+    }catch(err){
+
+        alert("Unable to open archive.");
+
+    }
+
+}
+
+function showPdfViewer(url){
+
+    const viewer=document.getElementById("pdfViewer");
+
+    const frame=document.getElementById("pdfFrame");
+
+    frame.src=url;
+
+    viewer.classList.remove("hidden");
+
+}
+
+window.addEventListener("DOMContentLoaded",()=>{
+
+    document.getElementById("closePdf").onclick=()=>{
+
+        const frame=document.getElementById("pdfFrame");
+
+        URL.revokeObjectURL(frame.src);
+
+        frame.src="";
+
+        document.getElementById("pdfViewer")
+            .classList.add("hidden");
+
+    };
+
+});
