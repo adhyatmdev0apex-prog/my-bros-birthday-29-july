@@ -127,42 +127,52 @@ function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
 const DOCUMENT_API =
     "https://custom-personal-document-api.onrender.com/api/document";
 
-async function openSecretDocument(answer1, answer2){
+async function openSecretDocument() {
 
-    showLoadingScene([
+    showLoadingOverlay([
         "Decrypting archive...",
         "Establishing secure channel...",
         "Verifying archive integrity...",
         "Preparing document..."
     ]);
 
-    try{
+    try {
 
-        const response = await fetch(DOCUMENT_API,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-                answer1,
-                answer2
-            }),
-            cache:"no-store"
-        });
+        const response = await fetch(
+            DOCUMENT_API,
+            {
+                method: "POST",
 
-        if(!response.ok){
-            throw new Error("Authentication Failed");
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    answer1: CONFIG.ANSWER_ONE,
+                    answer2: CONFIG.ANSWER_TWO
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Unauthorized");
         }
 
-        const blob=await response.blob();
+        const blob = await response.blob();
 
-        const url=URL.createObjectURL(blob);
+        const pdfURL = URL.createObjectURL(blob);
 
-        showPdfViewer(url);
+        hideLoadingOverlay();
 
-    }catch(err){
+        showPdfViewer(pdfURL);
+
+    } catch (err) {
+
+        hideLoadingOverlay();
 
         alert("Unable to open archive.");
+
+        console.error(err);
 
     }
 
@@ -170,13 +180,13 @@ async function openSecretDocument(answer1, answer2){
 
 function showPdfViewer(url){
 
-    const viewer=document.getElementById("pdfViewer");
-
     const frame=document.getElementById("pdfFrame");
 
     frame.src=url;
 
-    viewer.classList.remove("hidden");
+    document
+        .getElementById("pdfViewer")
+        .classList.remove("hidden");
 
 }
 
@@ -185,14 +195,15 @@ window.addEventListener("DOMContentLoaded",()=>{
     document.getElementById("closePdf").onclick=()=>{
 
         const frame=document.getElementById("pdfFrame");
-
+    
         URL.revokeObjectURL(frame.src);
-
+    
         frame.src="";
-
-        document.getElementById("pdfViewer")
+    
+        document
+            .getElementById("pdfViewer")
             .classList.add("hidden");
-
+    
     };
 
 });

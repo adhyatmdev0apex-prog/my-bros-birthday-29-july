@@ -577,8 +577,9 @@ async function _runTerminal(){
     await startSequence();
 }
 
-async function showLoadingScene(messages) {
+async function showLoadingOverlay(messages) {
     const loadingOverlay = document.createElement("div");
+    loadingOverlay.id = "loadingOverlay";
     loadingOverlay.className = "loading-overlay";
     
     const terminalWindow = document.createElement("div");
@@ -598,9 +599,14 @@ async function showLoadingScene(messages) {
         await typeWriter(p, line, 40);
         await wait(500);
     }
-    
-    loadingOverlay.classList.add("fading-out");
-    setTimeout(() => loadingOverlay.remove(), 500);
+}
+
+function hideLoadingOverlay() {
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    if (loadingOverlay) {
+        loadingOverlay.classList.add("fading-out");
+        setTimeout(() => loadingOverlay.remove(), 500);
+    }
 }
 
 function requestDocumentAuthentication() {
@@ -637,7 +643,7 @@ function requestDocumentAuthentication() {
             statusText.style.color = "#90ff9d";
             setTimeout(() => {
                 closeModal();
-                openSecretDocument(a1, a2);
+                openSecretDocument();
             }, 800);
         } else {
             statusText.textContent = "Incorrect. Try again.";
