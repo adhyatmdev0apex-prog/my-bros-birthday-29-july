@@ -390,3 +390,79 @@ body::after{ display:none; }
     z-index:100000;
 
 }
+
+/*=========================================
+    AUTH MODAL
+=========================================*/
+.auth-modal-container {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    animation: fadeInModal 0.5s forwards;
+}
+
+.auth-modal-container.fading-out {
+    animation: fadeOutModal 0.5s forwards;
+}
+
+.auth-modal-container .glassCard {
+    position: relative;
+    animation: floatLogo 0s; /* disable floating */
+}
+
+.auth-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 20px;
+    line-height: 30px;
+    text-align: center;
+}
+
+@keyframes fadeInModal {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOutModal {
+    to {
+        opacity: 0;
+    }
+}
+
+/*=========================================
+    LOADING OVERLAY
+=========================================*/
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    animation: fadeInModal 0.5s forwards;
+}
+
+.loading-overlay.fading-out {
+    animation: fadeOutModal 0.5s forwards;
+}
+
+.loading-overlay .terminalWindow {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}

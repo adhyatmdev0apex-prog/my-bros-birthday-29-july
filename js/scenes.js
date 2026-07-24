@@ -577,6 +577,81 @@ async function _runTerminal(){
     await startSequence();
 }
 
+async function showLoadingScene(messages) {
+    const loadingOverlay = document.createElement("div");
+    loadingOverlay.className = "loading-overlay";
+    
+    const terminalWindow = document.createElement("div");
+    terminalWindow.className = "terminalWindow";
+    
+    const terminalOutput = document.createElement("div");
+    terminalOutput.id = "terminalOutput";
+    
+    terminalWindow.appendChild(terminalOutput);
+    loadingOverlay.appendChild(terminalWindow);
+    document.body.appendChild(loadingOverlay);
+
+    for (const line of messages) {
+        const p = document.createElement("p");
+        terminalOutput.appendChild(p);
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        await typeWriter(p, line, 40);
+        await wait(500);
+    }
+    
+    loadingOverlay.classList.add("fading-out");
+    setTimeout(() => loadingOverlay.remove(), 500);
+}
+
+function requestDocumentAuthentication() {
+    const modalContainer = document.createElement("div");
+    modalContainer.className = "auth-modal-container";
+    document.body.appendChild(modalContainer);
+
+    const authTemplate = document.getElementById("auth-template").content.cloneNode(true);
+    modalContainer.appendChild(authTemplate);
+
+    const closeButton = document.createElement("button");
+    closeButton.innerText = "×";
+    closeButton.className = "auth-modal-close";
+    modalContainer.querySelector(".glassCard").prepend(closeButton);
+
+    const verifyButton = modalContainer.querySelector("#verifyButton");
+    const answerOneInput = modalContainer.querySelector("#answerOne");
+    const answerTwoInput = modalContainer.querySelector("#answerTwo");
+    const statusText = modalContainer.querySelector("#statusText");
+
+    const closeModal = () => {
+        modalContainer.classList.add("fading-out");
+        setTimeout(() => modalContainer.remove(), 500);
+    };
+
+    closeButton.addEventListener("click", closeModal);
+
+    const verify = () => {
+        const a1 = answerOneInput.value.trim();
+        const a2 = answerTwoInput.value.trim();
+
+        if (a1 === CONFIG.ANSWER_ONE && a2 === CONFIG.ANSWER_TWO) {
+            statusText.textContent = "Identity Verified ✓";
+            statusText.style.color = "#90ff9d";
+            setTimeout(() => {
+                closeModal();
+                openSecretDocument(a1, a2);
+            }, 800);
+        } else {
+            statusText.textContent = "Incorrect. Try again.";
+            statusText.style.color = "#ff7777";
+            answerOneInput.value = "";
+            answerTwoInput.value = "";
+        }
+    };
+
+    verifyButton.addEventListener("click", verify);
+    answerTwoInput.addEventListener("keypress", e => {
+        if (e.key === "Enter") verify();
+    });
+}
 
 /*=========================================================
     MEMORY MODE
@@ -595,6 +670,13 @@ const MEMORY_PAGES = [
     { title:"Night Wish", kicker:"Chapter 06", body:"Some wishes did not need to be spoken.", icon:"☾" },
     { title:"Birthday Cake", kicker:"Chapter 07", body:"Candles, music, confetti, and a tiny universe celebrating.", icon:"♫" },
     { title:"Final Message", kicker:"Chapter 08", body:"The best gifts are sometimes made only with time.", icon:"❦" },
+    {
+        type: 'archive',
+        title: "CONFIDENTIAL ARCHIVE",
+        kicker: "Access Level: PERSONAL",
+        body: "This document has been sealed.",
+        note: "Some thoughts are easier to preserve than to say aloud. If you wish to continue, the archive is waiting."
+    },
     { title:"Terminal", kicker:"Chapter 09", body:"Program executed successfully. End of transmission.", icon:"⌘" }
 ];
 
@@ -716,13 +798,30 @@ function _showMemoryBook(){
         page.classList.remove("turnForward", "turnBack");
         void page.offsetWidth;
         page.classList.add(direction > 0 ? "turnForward" : "turnBack");
-        page.innerHTML = `
-          <div class="pageKicker">${data.kicker}</div>
-          <div class="pageIcon">${data.icon}</div>
-          <h2>${data.title}</h2>
-          <p>${data.body}</p>
-          ${pageIndex === MEMORY_PAGES.length - 1 ? '<button class="experienceAgain">Revisit Universe</button>' : ''}
-        `;
+
+        if (data.type === 'archive') {
+            page.innerHTML = `
+                <div class="archiveCard">
+                    <h1>${data.title}</h1>
+                    <p class="accessLevel">${data.kicker}</p>
+                    <div class="divider"></div>
+                    <p class="bodyText">${data.body}</p>
+                    <p class="note">${data.note}</p>
+                    <button id="unlockButton">Unlock Document</button>
+                </div>
+            `;
+            const unlockButton = page.querySelector("#unlockButton");
+            unlockButton.addEventListener("click", requestDocumentAuthentication);
+        } else {
+            page.innerHTML = `
+              <div class="pageKicker">${data.kicker}</div>
+              <div class="pageIcon">${data.icon}</div>
+              <h2>${data.title}</h2>
+              <p>${data.body}</p>
+              ${pageIndex === MEMORY_PAGES.length - 1 ? '<button class="experienceAgain">Revisit Universe</button>' : ''}
+            `;
+        }
+        
         prev.disabled = pageIndex === 0;
         next.style.display = pageIndex === MEMORY_PAGES.length - 1 ? "none" : "grid";
         const restart = page.querySelector(".experienceAgain");
