@@ -27,7 +27,6 @@ const SCENES = [
     "cake",
     "ending",
     "terminal",
-    "confidential",
     "memory"
 ];
 
@@ -116,7 +115,6 @@ function renderScene(){
         case "cake":     showCake();           break;
         case "ending":   showEnding();         break;
         case "terminal": showTerminal();       break;
-        case "confidential": showConfidential(); break;
         case "memory":   showMemory();         break;
     }
 }
