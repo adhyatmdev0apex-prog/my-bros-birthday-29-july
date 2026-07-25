@@ -144,30 +144,49 @@ function openSecretDocument() {
 
 }
 
-function showPdfViewer(url){
+function showPdfViewer(url) {
+    let overlay = document.getElementById("pdfOverlay");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "pdfOverlay";
+        document.body.appendChild(overlay);
 
-    const frame=document.getElementById("pdfFrame");
+        overlay.innerHTML = `
+            <button id="closePdf">✕</button>
+            <iframe id="pdfFrame"></iframe>
+        `;
 
-    frame.src=url;
+        overlay.querySelector("#closePdf").addEventListener("click", closePdfViewer);
 
-    document
-        .getElementById("pdfViewer")
-        .classList.remove("hidden");
+        overlay.addEventListener("click", (e) => {
+            if (e.target.id === "pdfOverlay") {
+                closePdfViewer();
+            }
+        });
 
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && document.getElementById("pdfOverlay").classList.contains("visible")) {
+                closePdfViewer();
+            }
+        });
+    }
+
+    const frame = overlay.querySelector("#pdfFrame");
+    frame.src = url;
+    overlay.classList.add("visible");
+    // Hide memory book or other content if necessary
+    const mainContent = document.getElementById("app");
+    if(mainContent) mainContent.style.display = 'none';
 }
 
-window.addEventListener("DOMContentLoaded",()=>{
-
-    document.getElementById("closePdf").onclick=()=>{
-
-        const frame=document.getElementById("pdfFrame");
-    
-        frame.src="";
-    
-        document
-            .getElementById("pdfViewer")
-            .classList.add("hidden");
-    
-    };
-
-});
+function closePdfViewer() {
+    const overlay = document.getElementById("pdfOverlay");
+    if (overlay) {
+        const frame = overlay.querySelector("#pdfFrame");
+        frame.src = "";
+        overlay.classList.remove("visible");
+        // Show memory book or other content again
+        const mainContent = document.getElementById("app");
+        if(mainContent) mainContent.style.display = '';
+    }
+}

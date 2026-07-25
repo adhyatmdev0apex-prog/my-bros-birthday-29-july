@@ -859,11 +859,3 @@ function _showMemoryBook(){
         if(dx > 0 && pageIndex > 0){ pageIndex--; renderPage(-1); }
     }, { passive:true });
 }
-
-
-
-
-
-
-
-
