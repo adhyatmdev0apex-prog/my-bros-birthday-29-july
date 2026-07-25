@@ -144,35 +144,49 @@ function openSecretDocument() {
 
 }
 
-function showPdfViewer(url){
-    const viewer = document.getElementById("pdfViewer");
-    const frame = document.getElementById("pdfFrame");
+function showPdfViewer(url) {
+    let overlay = document.getElementById("pdfOverlay");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "pdfOverlay";
+        document.body.appendChild(overlay);
+
+        overlay.innerHTML = `
+            <button id="closePdf">✕</button>
+            <iframe id="pdfFrame"></iframe>
+        `;
+
+        overlay.querySelector("#closePdf").addEventListener("click", closePdfViewer);
+
+        overlay.addEventListener("click", (e) => {
+            if (e.target.id === "pdfOverlay") {
+                closePdfViewer();
+            }
+        });
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && document.getElementById("pdfOverlay").classList.contains("visible")) {
+                closePdfViewer();
+            }
+        });
+    }
+
+    const frame = overlay.querySelector("#pdfFrame");
     frame.src = url;
-    viewer.classList.add("visible");
+    overlay.classList.add("visible");
+    // Hide memory book or other content if necessary
+    const mainContent = document.getElementById("app");
+    if(mainContent) mainContent.style.display = 'none';
 }
 
 function closePdfViewer() {
-    const viewer = document.getElementById("pdfViewer");
-    const frame = document.getElementById("pdfFrame");
-    viewer.classList.remove("visible");
-    frame.src = "";
+    const overlay = document.getElementById("pdfOverlay");
+    if (overlay) {
+        const frame = overlay.querySelector("#pdfFrame");
+        frame.src = "";
+        overlay.classList.remove("visible");
+        // Show memory book or other content again
+        const mainContent = document.getElementById("app");
+        if(mainContent) mainContent.style.display = '';
+    }
 }
-
-window.addEventListener("DOMContentLoaded",()=>{
-    const viewer = document.getElementById("pdfViewer");
-    const closeButton = document.getElementById("closePdf");
-
-    closeButton.addEventListener("click", closePdfViewer);
-
-    viewer.addEventListener("click", (e) => {
-        if (e.target === viewer) {
-            closePdfViewer();
-        }
-    });
-
-    window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && viewer.classList.contains("visible")) {
-            closePdfViewer();
-        }
-    });
-});
