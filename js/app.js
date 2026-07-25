@@ -145,29 +145,34 @@ function openSecretDocument() {
 }
 
 function showPdfViewer(url){
+    const viewer = document.getElementById("pdfViewer");
+    const frame = document.getElementById("pdfFrame");
+    frame.src = url;
+    viewer.classList.add("visible");
+}
 
-    const frame=document.getElementById("pdfFrame");
-
-    frame.src=url;
-
-    document
-        .getElementById("pdfViewer")
-        .classList.remove("hidden");
-
+function closePdfViewer() {
+    const viewer = document.getElementById("pdfViewer");
+    const frame = document.getElementById("pdfFrame");
+    viewer.classList.remove("visible");
+    frame.src = "";
 }
 
 window.addEventListener("DOMContentLoaded",()=>{
+    const viewer = document.getElementById("pdfViewer");
+    const closeButton = document.getElementById("closePdf");
 
-    document.getElementById("closePdf").onclick=()=>{
+    closeButton.addEventListener("click", closePdfViewer);
 
-        const frame=document.getElementById("pdfFrame");
-    
-        frame.src="";
-    
-        document
-            .getElementById("pdfViewer")
-            .classList.add("hidden");
-    
-    };
+    viewer.addEventListener("click", (e) => {
+        if (e.target === viewer) {
+            closePdfViewer();
+        }
+    });
 
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && viewer.classList.contains("visible")) {
+            closePdfViewer();
+        }
+    });
 });
