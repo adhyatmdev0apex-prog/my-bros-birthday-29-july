@@ -124,10 +124,9 @@ function renderScene(){
 =========================================================*/
 function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
 
-const DOCUMENT_API =
-    "https://custom-personal-document-api.onrender.com/api/document";
 
-async function openSecretDocument() {
+
+function openSecretDocument() {
 
     showLoadingOverlay([
         "Decrypting archive...",
@@ -136,45 +135,12 @@ async function openSecretDocument() {
         "Preparing document..."
     ]);
 
-    try {
-
-        const response = await fetch(
-            DOCUMENT_API,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    answer1: CONFIG.ANSWER_ONE,
-                    answer2: CONFIG.ANSWER_TWO
-                })
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error("Unauthorized");
-        }
-
-        const blob = await response.blob();
-
-        const pdfURL = URL.createObjectURL(blob);
-
+    // Simulate a short delay for the loading animation to be appreciated
+    setTimeout(() => {
+        const pdfURL = "assets/fonts/.cache/.internal/.glyphmap/a7f0b91e/test.pdf";
         hideLoadingOverlay();
-
         showPdfViewer(pdfURL);
-
-    } catch (err) {
-
-        hideLoadingOverlay();
-
-        alert("Unable to open archive.");
-
-        console.error(err);
-
-    }
+    }, 1500);
 
 }
 
@@ -195,8 +161,6 @@ window.addEventListener("DOMContentLoaded",()=>{
     document.getElementById("closePdf").onclick=()=>{
 
         const frame=document.getElementById("pdfFrame");
-    
-        URL.revokeObjectURL(frame.src);
     
         frame.src="";
     
