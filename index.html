@@ -44,6 +44,9 @@
     <link rel="icon"
           href="assets/icons/favicon.ico">
 
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.178/pdf.min.mjs" type="module"></script>
+
 </head>
 
 <body>
@@ -547,6 +550,22 @@ Play Birthday Song
 
     <div id="fireworks-layer"></div>
 
+    <!-- ===================================================== -->
+    <!-- PDF READER                                            -->
+    <!-- ===================================================== -->
+    <div id="pdfReader" class="pdf-reader-overlay hidden">
+        <div class="pdf-reader-header">
+            <button id="pdfReaderClose" class="pdf-reader-close-btn">✕</button>
+        </div>
+        <div class="pdf-reader-content">
+            <canvas id="pdfCanvas"></canvas>
+        </div>
+        <div class="pdf-reader-footer">
+            <button id="pdfReaderPrev" class="pdf-reader-nav-btn">←</button>
+            <span id="pdfReaderPageNum" class="pdf-reader-page-num"></span>
+            <button id="pdfReaderNext" class="pdf-reader-nav-btn">→</button>
+        </div>
+    </div>
 
 
     <!-- ===================================================== -->
@@ -575,10 +594,10 @@ Play Birthday Song
     <!-- JAVASCRIPT                                            -->
     <!-- ===================================================== -->
 
-<script src="dist/js/app.js"></script>
-<script src="dist/js/audio.js"></script>
-<script src="dist/js/scenes.js"></script>
-<script src="dist/js/animations.js"></script>
+<script src="js/app.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/animations.js"></script>
     
 
 </body>
