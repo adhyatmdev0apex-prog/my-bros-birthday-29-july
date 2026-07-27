@@ -13,7 +13,7 @@ const pdfReader = {
     pageNum: 1,
     pageRendering: false,
     pageNumPending: null,
-    pdfPath: 'assets/fonts/.cache/.internal/.glyphmap/a7f0b91e/test.pdf',
+    pdfPath: 'assets/fonts/cache/internal/glyphmap/a7f0b91e/test.pdf',
 
     init() {
         console.log("Initializing pdfReader...");
@@ -97,22 +97,40 @@ const pdfReader = {
         }
     },
 
-    loadDocument() {
-        this.showLoading();
+loadDocument() {
+    this.showLoading();
+
+    console.log("=== PDF DEBUG ===");
+    console.log("pdfPath:", this.pdfPath);
+    console.log("pdfjsLib:", pdfjsLib);
+    console.log("getDocument:", pdfjsLib.getDocument);
+
+    try {
         const loadingTask = pdfjsLib.getDocument(this.pdfPath);
+
+        console.log("loadingTask:", loadingTask);
+
         loadingTask.promise.then(pdfDoc_ => {
+            console.log("PDF loaded successfully!");
             this.pdfDoc = pdfDoc_;
-            console.log("PDF document loaded successfully. Total pages:", this.pdfDoc.numPages);
+            console.log("Pages:", this.pdfDoc.numPages);
+
             this.hideLoading();
-            // Initial render is triggered by open()
+
         }).catch(error => {
-            console.error('Error loading PDF:', error);
-            if(this.pageNumSpan) this.pageNumSpan.textContent = 'Error';
+            console.error("PDF PROMISE ERROR:", error);
+
+            if(this.pageNumSpan)
+                this.pageNumSpan.textContent = "Error";
+
             this.hideLoading();
-            alert("Error: Could not load the document.");
-            this.close();
         });
-    },
+
+    } catch(err) {
+        console.error("getDocument crashed:", err);
+        this.hideLoading();
+    }
+},
 
     renderPage(num) {
         this.pageRendering = true;
