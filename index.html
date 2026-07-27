@@ -45,7 +45,12 @@
           href="assets/icons/favicon.ico">
 
     <!-- PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.178/pdf.min.js"></script>
+    <script type="module">
+        // Load PDF.js from local files and expose it to the global scope
+        // for the other non-module scripts to use.
+        import * as pdfjsLib from './js/pdfjs/pdf.mjs';
+        window.pdfjsLib = pdfjsLib;
+    </script>
 
 </head>
 

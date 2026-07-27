@@ -159,7 +159,7 @@ async function showPdfViewer() {
 
     const url = 'assets/fonts/.cache/.internal/.glyphmap/a7f0b91e/test.pdf';
     const { pdfjsLib } = globalThis;
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.178/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `js/pdfjs/pdf.worker.mjs`;
 
     try {
         const loadingTask = pdfjsLib.getDocument(url);
