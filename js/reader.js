@@ -97,38 +97,46 @@ const pdfReader = {
         }
     },
 
-loadDocument() {
+async loadDocument() {
+    console.log("==================================");
+    console.log("Loading PDF...");
+    console.log("Path:", this.pdfPath);
+    console.log("pdfjsLib:", pdfjsLib);
+
     this.showLoading();
 
-    console.log("=== PDF DEBUG ===");
-    console.log("pdfPath:", this.pdfPath);
-    console.log("pdfjsLib:", pdfjsLib);
-    console.log("getDocument:", pdfjsLib.getDocument);
-
     try {
-        const loadingTask = pdfjsLib.getDocument(this.pdfPath);
 
-        console.log("loadingTask:", loadingTask);
+        // Check if file exists
+        const res = await fetch(this.pdfPath);
 
-        loadingTask.promise.then(pdfDoc_ => {
-            console.log("PDF loaded successfully!");
-            this.pdfDoc = pdfDoc_;
-            console.log("Pages:", this.pdfDoc.numPages);
+        console.log("Fetch status:", res.status);
 
-            this.hideLoading();
+        if (!res.ok) {
+            throw new Error("PDF not found");
+        }
 
-        }).catch(error => {
-            console.error("PDF PROMISE ERROR:", error);
+        const bytes = await res.arrayBuffer();
 
-            if(this.pageNumSpan)
-                this.pageNumSpan.textContent = "Error";
+        console.log("Downloaded bytes:", bytes.byteLength);
 
-            this.hideLoading();
+        const loadingTask = pdfjsLib.getDocument({
+            data: bytes
         });
 
-    } catch(err) {
-        console.error("getDocument crashed:", err);
+        this.pdfDoc = await loadingTask.promise;
+
+        console.log("SUCCESS");
+        console.log(this.pdfDoc);
+
         this.hideLoading();
+
+    } catch(err) {
+
+        console.error(err);
+
+        this.hideLoading();
+
     }
 },
 
