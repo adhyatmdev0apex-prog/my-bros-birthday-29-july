@@ -1,3 +1,4 @@
+import * as pdfjsLib from "./pdfjs/pdf.mjs";
 const pdfReader = {
     element: document.getElementById('pdfReader'),
     canvas: document.getElementById('pdfCanvas'),
@@ -17,6 +18,7 @@ const pdfReader = {
     init() {
         console.log("Initializing pdfReader...");
         console.log("pdfjsLib:", pdfjsLib); // Verification as requested
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "./js/pdfjs/pdf.worker.mjs";
 
         if (this.pdfDoc) { // Already initialized
             console.log("pdfReader already initialized.");
