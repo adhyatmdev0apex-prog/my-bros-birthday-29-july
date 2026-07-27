@@ -98,6 +98,7 @@ const pdfReader = {
     },
 
 async loadDocument() {
+
     console.log("==================================");
     console.log("Loading PDF...");
     console.log("Path:", this.pdfPath);
@@ -107,7 +108,6 @@ async loadDocument() {
 
     try {
 
-        // Check if file exists
         const res = await fetch(this.pdfPath);
 
         console.log("Fetch status:", res.status);
@@ -121,25 +121,30 @@ async loadDocument() {
         console.log("Downloaded bytes:", bytes.byteLength);
 
         const loadingTask = pdfjsLib.getDocument({
-    data: bytes
-});
+            data: bytes
+        });
 
-console.log("Loading task:", loadingTask);
+        console.log("Loading task:", loadingTask);
 
-loadingTask.onProgress = (p) => {
-    console.log("Progress:", p);
-};
+        loadingTask.onProgress = (p) => {
+            console.log("Progress:", p);
+        };
 
-loadingTask.promise
-    .then(pdf => {
+        this.pdfDoc = await loadingTask.promise;
+
         console.log("SUCCESS");
-        console.log(pdf);
-    })
-    .catch(err => {
-        console.error("PDF ERROR:");
-        console.error(err);
-    });
-}
+        console.log(this.pdfDoc);
+
+        this.hideLoading();
+
+    } catch (err) {
+
+        console.error("PDF ERROR:", err);
+
+        this.hideLoading();
+
+    }
+
 },
 
     renderPage(num) {
