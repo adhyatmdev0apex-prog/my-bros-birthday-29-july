@@ -18,7 +18,7 @@ const pdfReader = {
         }
 
         // The workerSrc property must be specified.
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.mjs';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.178/pdf.worker.min.js`;
 
         this.addEventListeners();
         this.loadDocument();

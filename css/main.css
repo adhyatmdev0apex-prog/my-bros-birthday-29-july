@@ -462,15 +462,14 @@ body::after{ display:none; }
 }
 
 .pdf-reader-close-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    padding: 10px 20px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.1);
     color: white;
-    font-size: 20px;
-    line-height: 36px;
+    font-size: 16px;
     text-align: center;
     backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .pdf-reader-close-btn:hover {
     background: rgba(255, 255, 255, 0.2);
@@ -482,7 +481,7 @@ body::after{ display:none; }
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 5vh 2vw; /* Vertical padding to not touch edges */
+    padding: 2.5vh 2.5vw;
 }
 
 #pdfCanvas {
