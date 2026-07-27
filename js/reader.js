@@ -121,23 +121,25 @@ async loadDocument() {
         console.log("Downloaded bytes:", bytes.byteLength);
 
         const loadingTask = pdfjsLib.getDocument({
-            data: bytes
-        });
+    data: bytes
+});
 
-        this.pdfDoc = await loadingTask.promise;
+console.log("Loading task:", loadingTask);
 
+loadingTask.onProgress = (p) => {
+    console.log("Progress:", p);
+};
+
+loadingTask.promise
+    .then(pdf => {
         console.log("SUCCESS");
-        console.log(this.pdfDoc);
-
-        this.hideLoading();
-
-    } catch(err) {
-
+        console.log(pdf);
+    })
+    .catch(err => {
+        console.error("PDF ERROR:");
         console.error(err);
-
-        this.hideLoading();
-
-    }
+    });
+}
 },
 
     renderPage(num) {
