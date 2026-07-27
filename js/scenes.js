@@ -1,4 +1,4 @@
-﻿/*=========================================================
+﻿﻿/*=========================================================
     SCENES.JS  —  All scene logic
     Depends on: animations.js (typeWriter, fadeIn, fadeOut,
     random, createStar, createCloud, changeSky, clearClouds)
@@ -696,8 +696,8 @@ async function _runMemory(){
     app.innerHTML = `
       <section class="scene memoryScene">
         <div class="memoryDarkHold"></div>
-        <svg class="dateConstellation" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
-        <div class="constellationTitle">29 JULY</div>
+        <svg class="dateConstellation" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div id="constellationTitle" class="constellationTitle">29 JULY</div>
         <div class="memoryBookStage" aria-live="polite">
           <button class="bookArrow prevBookPage" aria-label="Previous page">‹</button>
           <div class="memoryBook"></div>
@@ -743,11 +743,8 @@ async function _formDateConstellation(){
             y:((rect.top + rect.height / 2 + offset.y) / window.innerHeight) * 100
         };
     });
-    svg.innerHTML = _constellationSegments(usable.length)
-        .map(([a,b]) => `<line x1="${points[a].x}" y1="${points[a].y}" x2="${points[b].x}" y2="${points[b].y}" />`)
-        .join("");
-    svg.classList.add("formed");
-    await wait(1800);
+
+    await wait(1800); // Keep timing consistent for star animation.
     if(title) title.classList.add("visible");
 
     if(usable[usable.length - 1]) usable[usable.length - 1].classList.add("memoryKeeperStar");
@@ -859,11 +856,3 @@ function _showMemoryBook(){
         if(dx > 0 && pageIndex > 0){ pageIndex--; renderPage(-1); }
     }, { passive:true });
 }
-
-
-
-
-
-
-
-
