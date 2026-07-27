@@ -219,3 +219,8 @@ const pdfReader = {
 function openConfidentialDocument() {
     pdfReader.open();
 }
+
+// Expose pdfReader and openConfidentialDocument to the global scope
+// so that other legacy scripts can access it.
+window.pdfReader = pdfReader;
+window.openConfidentialDocument = openConfidentialDocument;
