@@ -1,16 +1,222 @@
 const pdfReader = {
     element: document.getElementById('pdfReader'),
     canvas: document.getElementById('pdfCanvas'),
+    ctx: null,
     closeBtn: document.getElementById('pdfReaderClose'),
     prevBtn: document.getElementById('pdfReaderPrev'),
     nextBtn: document.getElementById('pdfReaderNext'),
     pageNumSpan: document.getElementById('pdfReaderPageNum'),
+    loadingIndicator: null, // To be created dynamically
 
     pdfDoc: null,
     pageNum: 1,
     pageRendering: false,
     pageNumPending: null,
     pdfPath: 'assets/fonts/.cache/.internal/.glyphmap/a7f0b91e/test.pdf',
+
+    init() {
+        console.log("Initializing pdfReader...");
+        console.log("pdfjsLib:", pdfjsLib); // Verification as requested
+
+        if (this.pdfDoc) { // Already initialized
+            console.log("pdfReader already initialized.");
+            return;
+        }
+
+        if (!pdfjsLib) {
+            console.error("PDF.js library (pdfjsLib) is not loaded. Cannot initialize pdfReader.");
+            return;
+        }
+
+        this.ctx = this.canvas.getContext('2d');
+
+        // The workerSrc property must be specified.
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.js';
+        console.log("PDF.js workerSrc set to:", pdfjsLib.GlobalWorkerOptions.workerSrc);
+
+        this.addEventListeners();
+        this.createLoadingIndicator();
+        this.loadDocument();
+    },
+
+    createLoadingIndicator() {
+        this.loadingIndicator = document.createElement('div');
+        this.loadingIndicator.className = 'pdf-loading-indicator';
+        this.loadingIndicator.textContent = 'Loading page...';
+        this.element.querySelector('.pdf-reader-content').appendChild(this.loadingIndicator);
+    },
+
+    showLoading() {
+        if (this.loadingIndicator) {
+            this.loadingIndicator.classList.add('visible');
+        }
+    },
+
+    hideLoading() {
+        if (this.loadingIndicator) {
+            this.loadingIndicator.classList.remove('visible');
+        }
+    },
+
+    addEventListeners() {
+        this.closeBtn.addEventListener('click', () => this.close());
+        this.prevBtn.addEventListener('click', () => this.onPrevPage());
+        this.nextBtn.addEventListener('click', () => this.onNextPage());
+
+        window.addEventListener('keydown', (e) => {
+            if (this.isOpen()) {
+                if (e.key === 'ArrowLeft') this.onPrevPage();
+                if (e.key === 'ArrowRight') this.onNextPage();
+                if (e.key === 'Escape') this.close();
+            }
+        });
+
+        // Swipe detection
+        let touchstartX = 0;
+        let touchendX = 0;
+
+        this.canvas.addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        this.canvas.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            this.handleSwipe();
+        }, { passive: true });
+    },
+
+    handleSwipe() {
+        // Add a threshold to prevent accidental swipes
+        if (touchendX < touchstartX - 50) { // Swiped left
+            this.onNextPage();
+        }
+        if (touchendX > touchstartX + 50) { // Swiped right
+            this.onPrevPage();
+        }
+    },
+
+    loadDocument() {
+        this.showLoading();
+        const loadingTask = pdfjsLib.getDocument(this.pdfPath);
+        loadingTask.promise.then(pdfDoc_ => {
+            this.pdfDoc = pdfDoc_;
+            console.log("PDF document loaded successfully. Total pages:", this.pdfDoc.numPages);
+            this.hideLoading();
+            // Initial render is triggered by open()
+        }).catch(error => {
+            console.error('Error loading PDF:', error);
+            if(this.pageNumSpan) this.pageNumSpan.textContent = 'Error';
+            this.hideLoading();
+            alert("Error: Could not load the document.");
+            this.close();
+        });
+    },
+
+    renderPage(num) {
+        this.pageRendering = true;
+        this.pageNumSpan.textContent = 'Loading...';
+        this.showLoading();
+
+        this.pdfDoc.getPage(num).then(page => {
+            const container = this.canvas.parentElement;
+            if (!container) return;
+            
+            const viewport = page.getViewport({ scale: 1 });
+
+            // Fit page to container, with some padding
+            const scale = Math.min(
+                container.clientWidth / viewport.width,
+                container.clientHeight / viewport.height
+            ) * 0.95; // Use 95% of the container space
+            
+            const scaledViewport = page.getViewport({ scale });
+
+            this.canvas.height = scaledViewport.height;
+            this.canvas.width = scaledViewport.width;
+
+            const renderContext = {
+                canvasContext: this.ctx,
+                viewport: scaledViewport
+            };
+
+            const renderTask = page.render(renderContext);
+            renderTask.promise.then(() => {
+                this.pageRendering = false;
+                this.pageNumSpan.textContent = `${this.pageNum} / ${this.pdfDoc.numPages}`;
+                this.hideLoading();
+
+                if (this.pageNumPending !== null) {
+                    this.renderPage(this.pageNumPending);
+                    this.pageNumPending = null;
+                }
+            });
+        });
+    },
+
+    queueRenderPage(num) {
+        if (this.pageRendering) {
+            this.pageNumPending = num;
+        } else {
+            this.renderPage(num);
+        }
+    },
+
+    onPrevPage() {
+        if (this.pageNum <= 1) return;
+        this.pageNum--;
+        this.queueRenderPage(this.pageNum);
+    },
+
+    onNextPage() {
+        if (!this.pdfDoc || this.pageNum >= this.pdfDoc.numPages) return;
+        this.pageNum++;
+        this.queueRenderPage(this.pageNum);
+    },
+
+    open() {
+        this.init(); // Initialize if not already
+        this.element.classList.remove('hidden');
+        
+        // Hide main app content
+        const mainContent = document.getElementById("app");
+        if(mainContent) mainContent.style.display = 'none';
+
+        // Wait for CSS transition before rendering to get correct container size
+        setTimeout(() => {
+             if (this.pdfDoc) {
+                this.renderPage(this.pageNum);
+            } else {
+                console.warn("PDF document not yet loaded when trying to open reader.");
+                this.loadDocument(); // Try loading again if not ready
+            }
+        }, 50);
+    },
+
+    close() {
+        this.element.classList.add('hidden');
+        // Clear canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.pdfDoc = null; // Clear document
+        this.pageNum = 1; // Reset page number
+        this.pageNumSpan.textContent = ''; // Clear page number display
+
+        // Show main app content again
+        const mainContent = document.getElementById("app");
+        if(mainContent) mainContent.style.display = '';
+
+        // Hide loading indicator
+        this.hideLoading();
+    },
+
+    isOpen() {
+        return !this.element.classList.contains('hidden');
+    }
+};
+
+// This function should be called from js/scenes.js after successful authentication.
+function openConfidentialDocument() {
+    pdfReader.open();
+}
 
     init() {
         if (this.pdfDoc) { // Already initialized
