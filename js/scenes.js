@@ -389,7 +389,7 @@ async function _runCake(){
         if(fired) return;
         fired = true;
 
-        playBirthdaySong();
+        // playBirthdaySong(); // Removed due to 416 Range Not Satisfiable error, as per instructions.
         _launchConfetti();
 
         btn.textContent  = "🎉 Happy Birthday! 🎉";
