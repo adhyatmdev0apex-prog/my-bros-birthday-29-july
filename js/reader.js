@@ -33,7 +33,7 @@ const pdfReader = {
         this.ctx = this.canvas.getContext('2d');
 
         // The workerSrc property must be specified.
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.mjs';
         console.log("PDF.js workerSrc set to:", pdfjsLib.GlobalWorkerOptions.workerSrc);
 
         this.addEventListeners();
