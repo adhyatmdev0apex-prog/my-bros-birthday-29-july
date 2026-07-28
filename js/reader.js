@@ -147,46 +147,83 @@ async loadDocument() {
 
 },
 
-    renderPage(num) {
-        this.pageRendering = true;
-        this.pageNumSpan.textContent = 'Loading...';
-        this.showLoading();
+renderPage(num) {
 
-        this.pdfDoc.getPage(num).then(page => {
-            const container = this.canvas.parentElement;
-            if (!container) return;
-            
-            const viewport = page.getViewport({ scale: 1 });
+    this.pageRendering = true;
+    this.pageNumSpan.textContent = "Loading...";
+    this.showLoading();
 
-            // Fit page to container, with some padding
-            const scale = Math.min(
-                container.clientWidth / viewport.width,
-                container.clientHeight / viewport.height
-            ) * 0.95; // Use 95% of the container space
-            
-            const scaledViewport = page.getViewport({ scale });
+    this.pdfDoc.getPage(num).then(page => {
 
-            this.canvas.height = scaledViewport.height;
-            this.canvas.width = scaledViewport.width;
+        const container = this.canvas.parentElement;
 
-            const renderContext = {
-                canvasContext: this.ctx,
-                viewport: scaledViewport
-            };
+        if (!container) return;
 
-            const renderTask = page.render(renderContext);
-            renderTask.promise.then(() => {
-                this.pageRendering = false;
-                this.pageNumSpan.textContent = `${this.pageNum} / ${this.pdfDoc.numPages}`;
-                this.hideLoading();
+        // Original PDF page
+        const viewport = page.getViewport({ scale: 1 });
 
-                if (this.pageNumPending !== null) {
-                    this.renderPage(this.pageNumPending);
-                    this.pageNumPending = null;
-                }
-            });
+        // Fit ONLY to width
+        const scale =
+            (container.clientWidth - 24) / viewport.width;
+
+        const scaledViewport = page.getViewport({
+            scale
         });
-    },
+
+        // High-DPI rendering
+        const outputScale = window.devicePixelRatio || 1;
+
+        this.canvas.width =
+            Math.floor(scaledViewport.width * outputScale);
+
+        this.canvas.height =
+            Math.floor(scaledViewport.height * outputScale);
+
+        this.canvas.style.width =
+            scaledViewport.width + "px";
+
+        this.canvas.style.height =
+            scaledViewport.height + "px";
+
+        this.ctx.setTransform(
+            outputScale,
+            0,
+            0,
+            outputScale,
+            0,
+            0
+        );
+
+        const renderContext = {
+
+            canvasContext: this.ctx,
+
+            viewport: scaledViewport
+
+        };
+
+        page.render(renderContext).promise.then(() => {
+
+            this.pageRendering = false;
+
+            this.pageNumSpan.textContent =
+                `${this.pageNum} / ${this.pdfDoc.numPages}`;
+
+            this.hideLoading();
+
+            if (this.pageNumPending !== null) {
+
+                this.renderPage(this.pageNumPending);
+
+                this.pageNumPending = null;
+
+            }
+
+        });
+
+    });
+
+},
 
     queueRenderPage(num) {
         if (this.pageRendering) {
