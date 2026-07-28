@@ -155,7 +155,7 @@ renderPage(num) {
 
     this.pdfDoc.getPage(num).then(page => {
 
-        const container = this.canvas.parentElement;
+        const container = document.querySelector(".pdf-reader-content");
 
         if (!container) return;
 
@@ -268,8 +268,6 @@ renderPage(num) {
         this.element.classList.add('hidden');
         // Clear canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.pdfDoc = null; // Clear document
-        this.pageNum = 1; // Reset page number
         this.pageNumSpan.textContent = ''; // Clear page number display
 
         // Show main app content again
